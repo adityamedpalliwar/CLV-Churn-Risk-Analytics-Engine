@@ -8,6 +8,7 @@ from load_data import load_dataset, inspect_dataset
 from explore_data import run_phase2_exploration
 from clean_data import clean_dataset
 from eda import run_phase4_eda
+from churn_model import run_phase5_modeling
 
 
 def main():
@@ -33,6 +34,9 @@ def main():
 
     # Step 4: Phase 4 - Perform Exploratory Data Analysis (EDA)
     run_phase4_eda(df_clean)
+
+    # Step 5: Phase 5 - Baseline Churn Prediction with Logistic Regression
+    run_phase5_modeling(df_clean)
 
 
 if __name__ == "__main__":

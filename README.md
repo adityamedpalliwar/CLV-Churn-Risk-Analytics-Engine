@@ -10,12 +10,14 @@ A beginner-level data science college project combining Machine Learning and Sta
 CLV-Churn-Risk-Analytics-Engine/
 ├── WA_Fn-UseC_-Telco-Customer-Churn.csv   # Original IBM Telco Customer Churn dataset (preserved)
 ├── telco_churn_cleaned.csv                # Cleaned & preprocessed dataset for modeling
+├── customer_risk_value_analysis.csv       # Phase 7: Customer-level risk and value analysis results
 ├── load_data.py                           # Phase 1: Data loading and initial inspection
 ├── explore_data.py                        # Phase 2: Data understanding & statistical exploration
 ├── clean_data.py                          # Phase 3: Basic data cleaning and preprocessing
 ├── eda.py                                 # Phase 4: Exploratory Data Analysis & visual generation
 ├── churn_model.py                         # Phase 5: Baseline Churn Prediction (Logistic Regression)
 ├── clv_estimation.py                      # Phase 6: Customer Lifetime Value (CLV) Estimation
+├── customer_risk_analysis.py              # Phase 7: Customer-Level Risk & Value Analysis
 ├── main.py                                # Main pipeline orchestration script
 ├── plots/                                 # Generated EDA visualizations (7 figures)
 ├── requirements.txt                       # Project dependencies
@@ -43,7 +45,7 @@ pip install -r requirements.txt
 
 ## Running the Project
 
-Run the entire end-to-end pipeline (Phases 1 through 6) via the main script:
+Run the entire end-to-end pipeline (Phases 1 through 7) via the main script:
 
 ```bash
 python main.py
@@ -73,6 +75,10 @@ You can also run individual modules directly:
 - **Phase 6 (Customer Lifetime Value Estimation):**
   ```bash
   python clv_estimation.py
+  ```
+- **Phase 7 (Customer-Level Risk and Value Analysis):**
+  ```bash
+  python customer_risk_analysis.py
   ```
 
 ---
@@ -115,11 +121,15 @@ You can also run individual modules directly:
 
 ### Phase 6: Customer Lifetime Value (CLV) Estimation
 - **Concept:** Transparent expected future gross revenue (not actual net profit).
-- **Formula:**
-  $$\text{P(Retention)} = 1 - \text{P(Churn)}$$
-  $$\text{Expected Remaining Months} = T \times \text{P(Retention)}$$
-  $$\text{Estimated Future CLV} = \text{MonthlyCharges} \times \text{Expected Remaining Months}$$
-  $$\text{Revenue at Risk} = (\text{MonthlyCharges} \times T) \times \text{P(Churn)}$$
-  $$\text{Total Estimated CLV} = \text{TotalCharges} + \text{Estimated Future CLV}$$
-- **Key Separation:** Historical revenue (`TotalCharges`) is strictly isolated from estimated future revenue.
+- **Separation:** Historical revenue (`TotalCharges`) is strictly isolated from estimated future revenue.
 - **Configurable Horizon:** Easily adaptable planning window (default: 12 months).
+
+### Phase 7: Customer-Level Risk and Value Analysis
+- **Formula:**
+  $$\text{Revenue at Risk} = \text{Churn Probability} \times \text{Estimated Future CLV}$$
+- **Editable Priority Thresholds:**
+  - `High Risk`: Churn Probability $\ge 50\%$ (1,550 customers, \$330,862.22 total revenue at risk).
+  - `Medium Risk`: Churn Probability $25\% \le P < 50\%$ (1,509 customers, \$289,360.07 total revenue at risk).
+  - `Low Risk`: Churn Probability $< 25\%$ (3,984 customers, \$205,695.76 total revenue at risk).
+- **Critical Segment (High Risk & High Value):** 953 customers with $P \ge 50\%$ and Future CLV $\ge \$300.00$, accounting for \$233,109.08 in immediate revenue at risk.
+- **Export:** Saved comprehensive analysis to `customer_risk_value_analysis.csv`.

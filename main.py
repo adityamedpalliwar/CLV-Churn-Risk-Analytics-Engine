@@ -10,6 +10,7 @@ from clean_data import clean_dataset
 from eda import run_phase4_eda
 from churn_model import run_phase5_modeling
 from clv_estimation import run_phase6_clv
+from customer_risk_analysis import run_phase7_analysis
 
 
 def main():
@@ -41,6 +42,9 @@ def main():
 
     # Step 6: Phase 6 - Customer Lifetime Value (CLV) Estimation
     df_clv = run_phase6_clv(df_clean, pipeline=pipeline, horizon_months=12)
+
+    # Step 7: Phase 7 - Customer-Level Risk and Value Analysis
+    df_analysis = run_phase7_analysis(df_clv, pipeline=pipeline, horizon_months=12)
 
 
 if __name__ == "__main__":

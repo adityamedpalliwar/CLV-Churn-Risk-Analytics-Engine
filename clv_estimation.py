@@ -30,21 +30,6 @@ def estimate_customer_clv(df, pipeline, horizon_months=12):
     """
     df_clv = df.copy()
 
-    print("\n" + "=" * 65)
-    print("1. CLV METHODOLOGY, FORMULA & ASSUMPTIONS")
-    print("=" * 65)
-    print(" * Concept: Simplified Estimated Future Revenue (not actual net profit).")
-    print(f" * Planning Horizon (T): {horizon_months} months (easily adjustable).")
-    print(" * Mathematical Formulation:")
-    print("     - P(Retention) = 1 - P(Churn)")
-    print("     - Expected Remaining Months = T * P(Retention)")
-    print("     - Estimated Future Revenue  = MonthlyCharges * Expected Remaining Months")
-    print("     - Revenue at Risk           = (MonthlyCharges * T) * P(Churn)")
-    print("     - Total Lifetime Value      = Historical TotalCharges + Estimated Future Revenue")
-    print(" * Separation: Historical revenue (TotalCharges) is kept strictly separate")
-    print("   from future estimated revenue.")
-    print(" * Transparency: No black-box probabilistic models or hidden discount rates.")
-
     # 1. Prepare features for prediction (exclude customerID and Churn if present)
     feature_cols = [c for c in df_clv.columns if c not in ["customerID", "Churn"]]
     X = df_clv[feature_cols]
@@ -77,55 +62,61 @@ def estimate_customer_clv(df, pipeline, horizon_months=12):
 
 def display_clv_summary(df_clv, horizon_months=12):
     """
-    Displays summary statistics, cohort comparisons, and sample customer profiles.
+    Displays summary statistics, cohort comparisons, and sample customer profiles
+    using full, appropriate column names.
     
     Parameters:
         df_clv (pd.DataFrame): DataFrame with CLV metrics.
         horizon_months (int): Planning window in months.
     """
-    print("\n" + "=" * 65)
-    print("2. OVERALL CLV METRICS SUMMARY (ENTIRE CUSTOMER BASE)")
-    print("=" * 65)
+    print("\n" + "=" * 80)
+    print("1. CLV METHODOLOGY, FORMULA & ASSUMPTIONS")
+    print("=" * 80)
+    print(f" * Planning Horizon (T)           : {horizon_months} months (configurable)")
+    print(" * P(Retention)                   = 1 - P(Churn)")
+    print(" * Expected Remaining Months      = T * P(Retention)")
+    print(" * Estimated Future CLV           = MonthlyCharges * Expected Remaining Months")
+    print(" * Revenue at Risk                = (MonthlyCharges * T) * P(Churn)")
+    print(" * Total Estimated CLV            = Historical TotalCharges + Estimated Future CLV")
+    print(" * Key Principle                  : Historical charges are kept strictly separate")
+    print("                                    from estimated future revenue.")
 
-    summary_cols = [
-        "tenure",
-        "MonthlyCharges",
-        "TotalCharges",
-        "Expected_Remaining_Months",
-        "Estimated_Future_CLV",
-        "Revenue_at_Risk",
-        "Total_Estimated_CLV"
+    print("\n" + "=" * 80)
+    print("2. OVERALL CLV METRICS SUMMARY (7,043 CUSTOMERS)")
+    print("=" * 80)
+
+    summary_rows = [
+        {"Metric": "Tenure (months)", "Mean": f"{df_clv['tenure'].mean():.1f}", "Median": f"{df_clv['tenure'].median():.1f}", "Std Dev": f"{df_clv['tenure'].std():.1f}", "Min": f"{df_clv['tenure'].min():.1f}", "Max": f"{df_clv['tenure'].max():.1f}"},
+        {"Metric": "MonthlyCharges", "Mean": f"${df_clv['MonthlyCharges'].mean():.2f}", "Median": f"${df_clv['MonthlyCharges'].median():.2f}", "Std Dev": f"${df_clv['MonthlyCharges'].std():.2f}", "Min": f"${df_clv['MonthlyCharges'].min():.2f}", "Max": f"${df_clv['MonthlyCharges'].max():.2f}"},
+        {"Metric": "TotalCharges (Hist)", "Mean": f"${df_clv['TotalCharges'].mean():.2f}", "Median": f"${df_clv['TotalCharges'].median():.2f}", "Std Dev": f"${df_clv['TotalCharges'].std():.2f}", "Min": f"${df_clv['TotalCharges'].min():.2f}", "Max": f"${df_clv['TotalCharges'].max():.2f}"},
+        {"Metric": "Expected Rem Months", "Mean": f"{df_clv['Expected_Remaining_Months'].mean():.1f}", "Median": f"{df_clv['Expected_Remaining_Months'].median():.1f}", "Std Dev": f"{df_clv['Expected_Remaining_Months'].std():.1f}", "Min": f"{df_clv['Expected_Remaining_Months'].min():.1f}", "Max": f"{df_clv['Expected_Remaining_Months'].max():.1f}"},
+        {"Metric": "Estimated Future CLV", "Mean": f"${df_clv['Estimated_Future_CLV'].mean():.2f}", "Median": f"${df_clv['Estimated_Future_CLV'].median():.2f}", "Std Dev": f"${df_clv['Estimated_Future_CLV'].std():.2f}", "Min": f"${df_clv['Estimated_Future_CLV'].min():.2f}", "Max": f"${df_clv['Estimated_Future_CLV'].max():.2f}"},
+        {"Metric": "Revenue at Risk", "Mean": f"${df_clv['Revenue_at_Risk'].mean():.2f}", "Median": f"${df_clv['Revenue_at_Risk'].median():.2f}", "Std Dev": f"${df_clv['Revenue_at_Risk'].std():.2f}", "Min": f"${df_clv['Revenue_at_Risk'].min():.2f}", "Max": f"${df_clv['Revenue_at_Risk'].max():.2f}"},
+        {"Metric": "Total Estimated CLV", "Mean": f"${df_clv['Total_Estimated_CLV'].mean():.2f}", "Median": f"${df_clv['Total_Estimated_CLV'].median():.2f}", "Std Dev": f"${df_clv['Total_Estimated_CLV'].std():.2f}", "Min": f"${df_clv['Total_Estimated_CLV'].min():.2f}", "Max": f"${df_clv['Total_Estimated_CLV'].max():.2f}"}
     ]
-    summary_df = df_clv[summary_cols].describe().round(2)
-    # Transpose for easier horizontal reading
-    print(summary_df.loc[["mean", "std", "min", "50%", "max"]].T)
+    summary_table = pd.DataFrame(summary_rows)
+    print(summary_table.to_string(index=False))
 
-    print("\n" + "=" * 65)
+    print("\n" + "=" * 80)
     print("3. SAMPLE CUSTOMER CLV PROFILES (FIRST 8 CUSTOMERS)")
-    print("=" * 65)
+    print("=" * 80)
 
-    display_cols = [
-        "customerID",
-        "tenure",
-        "MonthlyCharges",
-        "TotalCharges",
-        "Churn_Probability",
-        "Expected_Remaining_Months",
-        "Estimated_Future_CLV",
-        "Total_Estimated_CLV"
-    ]
-    sample_df = df_clv[display_cols].head(8).copy()
-    sample_df["MonthlyCharges"] = sample_df["MonthlyCharges"].map("${:.2f}".format)
-    sample_df["TotalCharges"] = sample_df["TotalCharges"].map("${:.2f}".format)
-    sample_df["Churn_Probability"] = (sample_df["Churn_Probability"] * 100).map("{:.1f}%".format)
-    sample_df["Expected_Remaining_Months"] = sample_df["Expected_Remaining_Months"].map("{:.1f} mos".format)
-    sample_df["Estimated_Future_CLV"] = sample_df["Estimated_Future_CLV"].map("${:.2f}".format)
-    sample_df["Total_Estimated_CLV"] = sample_df["Total_Estimated_CLV"].map("${:.2f}".format)
-    print(sample_df.to_string(index=False))
+    sample = df_clv.head(8).copy()
+    sample_full = pd.DataFrame({
+        "CustomerID": sample["customerID"],
+        "Tenure": [f"{int(t)} mos" for t in sample["tenure"]],
+        "MonthlyCharges": [f"${m:.2f}" for m in sample["MonthlyCharges"]],
+        "TotalCharges": [f"${t:.2f}" for t in sample["TotalCharges"]],
+        "Churn Probability": [f"{p*100:.1f}%" for p in sample["Churn_Probability"]],
+        "Expected Remaining Months": [f"{r:.1f} mos" for r in sample["Expected_Remaining_Months"]],
+        "Estimated Future CLV": [f"${f:.2f}" for f in sample["Estimated_Future_CLV"]],
+        "Total Estimated CLV": [f"${tot:.2f}" for tot in sample["Total_Estimated_CLV"]]
+    })
+    print(sample_full.to_string(index=False))
 
-    print("\n" + "=" * 65)
+    print("\n" + "=" * 80)
     print("4. STRATEGIC COMPARISON: HIGH-RISK vs LOW-RISK COHORTS")
-    print("=" * 65)
+    print("=" * 80)
 
     high_risk = df_clv[df_clv["Churn_Probability"] >= 0.50]
     low_risk = df_clv[df_clv["Churn_Probability"] < 0.50]
@@ -133,16 +124,16 @@ def display_clv_summary(df_clv, horizon_months=12):
     cohort_comparison = pd.DataFrame([
         {
             "Cohort": "High Churn Risk (P >= 50%)",
-            "Customers": f"{len(high_risk):,}",
-            "Avg Monthly Charge": f"${high_risk['MonthlyCharges'].mean():.2f}",
+            "Customer Count": f"{len(high_risk):,}",
+            "Avg MonthlyCharges": f"${high_risk['MonthlyCharges'].mean():.2f}",
             "Avg Remaining Months": f"{high_risk['Expected_Remaining_Months'].mean():.1f} mos",
             "Avg Future CLV": f"${high_risk['Estimated_Future_CLV'].mean():.2f}",
             "Avg Revenue at Risk": f"${high_risk['Revenue_at_Risk'].mean():.2f}"
         },
         {
             "Cohort": "Low/Moderate Risk (P < 50%)",
-            "Customers": f"{len(low_risk):,}",
-            "Avg Monthly Charge": f"${low_risk['MonthlyCharges'].mean():.2f}",
+            "Customer Count": f"{len(low_risk):,}",
+            "Avg MonthlyCharges": f"${low_risk['MonthlyCharges'].mean():.2f}",
             "Avg Remaining Months": f"{low_risk['Expected_Remaining_Months'].mean():.1f} mos",
             "Avg Future CLV": f"${low_risk['Estimated_Future_CLV'].mean():.2f}",
             "Avg Revenue at Risk": f"${low_risk['Revenue_at_Risk'].mean():.2f}"
@@ -150,26 +141,28 @@ def display_clv_summary(df_clv, horizon_months=12):
     ])
     print(cohort_comparison.to_string(index=False))
 
-    print("\n" + "=" * 65)
+    print("\n" + "=" * 80)
     print("5. HOW CHURN PREDICTION INFORMS CLV ESTIMATION")
-    print("=" * 65)
-    print(" 1. Risk-Adjusted Revenue: Without churn prediction, companies naively assume all")
-    print("    customers stay for the full planning window (MonthlyCharges * 12). Incorporating")
-    print("    churn probability prevents overestimating future revenue from fragile accounts.")
-    print(" 2. Proactive Retention Prioritization: By identifying 'Revenue at Risk', managers")
-    print("    can focus retention interventions on high-value customers who have a high churn probability,")
-    print("    maximizing the return on retention marketing spend.")
+    print("=" * 80)
+    print(" 1. Risk-Adjusted Projections:")
+    print("    Without churn probability, a business naively forecasts MonthlyCharges * 12.")
+    print("    Multiplying by P(Retention) discounts expected revenue for fragile accounts,")
+    print("    preventing revenue over-estimation.")
+    print(" 2. Targeted Retention & ROI:")
+    print("    Identifying 'Revenue at Risk' allows teams to prioritize retention interventions")
+    print("    on high-value accounts with imminent risk, maximizing retention campaign ROI.")
 
-    print("\n" + "=" * 65)
+    print("\n" + "=" * 80)
     print("6. ASSUMPTIONS & LIMITATIONS")
-    print("=" * 65)
-    print(" * Assumption 1 (Constant Monthly Spend): Assumes monthly charges remain steady over the horizon")
-    print("   without account upgrades, downgrades, or price revisions.")
-    print(" * Assumption 2 (Linear Risk Discount): Assumes churn probability linearly scales expected active months.")
-    print(" * Limitation 1 (Revenue vs. Profit): This calculates gross expected revenue, not net profit")
-    print("   (operational overhead, server infrastructure, and customer acquisition costs are omitted).")
-    print(" * Limitation 2 (No Future Certainty): This is an empirical estimate to guide decision-making,")
-    print("   not a guaranteed financial forecast.")
+    print("=" * 80)
+    print(" * Assumption 1 (Constant Monthly Spend): Assumes monthly charges stay constant")
+    print("   across the horizon without immediate plan upgrades or downgrades.")
+    print(" * Assumption 2 (Linear Risk Discount): Uses P(Retention) as a direct scaling")
+    print("   factor for expected active customer months.")
+    print(" * Limitation 1 (Gross Revenue vs. Net Profit): Estimates gross revenue collected,")
+    print("   not net profit (infrastructure and customer service costs are omitted).")
+    print(" * Limitation 2 (Estimated, Not Guaranteed): Represents an expected value to guide")
+    print("   business prioritization, not a guaranteed financial audit.")
 
 
 def run_phase6_clv(df, pipeline=None, horizon_months=12):
@@ -188,9 +181,9 @@ def run_phase6_clv(df, pipeline=None, horizon_months=12):
         print("[ERROR] DataFrame is None. Cannot run Phase 6 CLV estimation.")
         return None
 
-    print("\n" + "#" * 65)
+    print("\n" + "#" * 80)
     print("# PHASE 6: CUSTOMER LIFETIME VALUE (CLV) ESTIMATION")
-    print("#" * 65)
+    print("#" * 80)
 
     # Train a baseline pipeline if not provided
     if pipeline is None:
@@ -211,9 +204,9 @@ def run_phase6_clv(df, pipeline=None, horizon_months=12):
     # Display summaries
     display_clv_summary(df_clv, horizon_months=horizon_months)
 
-    print("\n" + "#" * 65)
+    print("\n" + "#" * 80)
     print("# Phase 6 CLV Estimation Completed Successfully!")
-    print("#" * 65)
+    print("#" * 80)
 
     return df_clv
 

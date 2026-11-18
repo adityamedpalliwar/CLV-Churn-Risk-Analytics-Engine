@@ -7,6 +7,7 @@ and Churn Risk Analytics Engine project.
 from load_data import load_dataset, inspect_dataset
 from explore_data import run_phase2_exploration
 from clean_data import clean_dataset
+from eda import run_phase4_eda
 
 
 def main():
@@ -28,7 +29,10 @@ def main():
     run_phase2_exploration(df)
 
     # Step 3: Phase 3 - Run basic data cleaning and preprocessing
-    clean_dataset(df)
+    df_clean, customer_ids, X, y, num_features, cat_features = clean_dataset(df)
+
+    # Step 4: Phase 4 - Perform Exploratory Data Analysis (EDA)
+    run_phase4_eda(df_clean)
 
 
 if __name__ == "__main__":

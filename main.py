@@ -6,6 +6,7 @@ and Churn Risk Analytics Engine project.
 
 from load_data import load_dataset, inspect_dataset
 from explore_data import run_phase2_exploration
+from clean_data import clean_dataset
 
 
 def main():
@@ -25,6 +26,9 @@ def main():
 
     # Step 2: Phase 2 - Run basic data understanding & statistical exploration
     run_phase2_exploration(df)
+
+    # Step 3: Phase 3 - Run basic data cleaning and preprocessing
+    clean_dataset(df)
 
 
 if __name__ == "__main__":

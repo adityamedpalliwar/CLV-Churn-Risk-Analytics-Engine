@@ -22,7 +22,7 @@ def load_dataset(file_path="WA_Fn-UseC_-Telco-Customer-Churn.csv"):
         # Load CSV using pandas with relative path
         df = pd.read_csv(file_path)
         print(f"[SUCCESS] Dataset successfully loaded from: '{file_path}'")
-        return df
+        return df # this Core Return of entire DataSet
     except FileNotFoundError:
         print(f"[ERROR] The file '{file_path}' was not found. Please ensure the CSV file is in the project folder.")
         return None

@@ -1,27 +1,30 @@
 """
 main.py
-Main entry point for Phase 1 of the Customer Lifetime Value (CLV)
+Main entry point for the Customer Lifetime Value (CLV)
 and Churn Risk Analytics Engine project.
 """
 
 from load_data import load_dataset, inspect_dataset
+from explore_data import run_phase2_exploration
 
 
 def main():
     print("==================================================================")
     print(" Customer Lifetime Value (CLV) & Churn Risk Analytics Engine")
-    print(" Phase 1: Basic Data Loading and Inspection")
     print("==================================================================\n")
 
-    # Step 1: Call the data-loading functionality
+    # Step 1: Phase 1 - Load dataset and perform initial inspection
+    print(">>> [PHASE 1] Loading Dataset...")
     df = load_dataset()
 
-    # Step 2: Run basic data inspection if loading was successful
-    if df is not None:
-        inspect_dataset(df)
-        print("\n[INFO] Phase 1 data loading and inspection completed successfully!")
-    else:
-        print("\n[FAILED] Unable to load dataset. Please check the file path and try again.")
+    if df is None:
+        print("\n[FAILED] Unable to load dataset. Please verify the CSV file location.")
+        return
+
+    inspect_dataset(df)
+
+    # Step 2: Phase 2 - Run basic data understanding & statistical exploration
+    run_phase2_exploration(df)
 
 
 if __name__ == "__main__":

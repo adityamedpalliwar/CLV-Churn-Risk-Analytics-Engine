@@ -9,6 +9,7 @@ from explore_data import run_phase2_exploration
 from clean_data import clean_dataset
 from eda import run_phase4_eda
 from churn_model import run_phase5_modeling
+from clv_estimation import run_phase6_clv
 
 
 def main():
@@ -36,7 +37,10 @@ def main():
     run_phase4_eda(df_clean)
 
     # Step 5: Phase 5 - Baseline Churn Prediction with Logistic Regression
-    run_phase5_modeling(df_clean)
+    pipeline, metrics = run_phase5_modeling(df_clean)
+
+    # Step 6: Phase 6 - Customer Lifetime Value (CLV) Estimation
+    df_clv = run_phase6_clv(df_clean, pipeline=pipeline, horizon_months=12)
 
 
 if __name__ == "__main__":

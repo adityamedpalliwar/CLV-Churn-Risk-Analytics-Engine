@@ -15,6 +15,7 @@ CLV-Churn-Risk-Analytics-Engine/
 ├── clean_data.py                          # Phase 3: Basic data cleaning and preprocessing
 ├── eda.py                                 # Phase 4: Exploratory Data Analysis & visual generation
 ├── churn_model.py                         # Phase 5: Baseline Churn Prediction (Logistic Regression)
+├── clv_estimation.py                      # Phase 6: Customer Lifetime Value (CLV) Estimation
 ├── main.py                                # Main pipeline orchestration script
 ├── plots/                                 # Generated EDA visualizations (7 figures)
 ├── requirements.txt                       # Project dependencies
@@ -42,7 +43,7 @@ pip install -r requirements.txt
 
 ## Running the Project
 
-Run the entire end-to-end pipeline (Phases 1 through 5) via the main script:
+Run the entire end-to-end pipeline (Phases 1 through 6) via the main script:
 
 ```bash
 python main.py
@@ -68,6 +69,10 @@ You can also run individual modules directly:
 - **Phase 5 (Baseline Churn Prediction Modeling):**
   ```bash
   python churn_model.py
+  ```
+- **Phase 6 (Customer Lifetime Value Estimation):**
+  ```bash
+  python clv_estimation.py
   ```
 
 ---
@@ -105,10 +110,16 @@ You can also run individual modules directly:
 - **Data Splitting:** 80% train (5,634 samples) and 20% test (1,409 samples) with `random_state=42`.
 - **Pipeline & Leakage Prevention:** Built with `ColumnTransformer` (`StandardScaler` for numerical attributes and `OneHotEncoder(drop='first')` for categorical attributes) within a Scikit-learn `Pipeline`.
 - **Model:** Logistic Regression (`max_iter=1000`, `random_state=42`).
-- **Performance Highlights:**
-  - **Accuracy:** 82.11%
-  - **Precision:** 68.62%
-  - **Recall:** 59.79%
-  - **F1-Score:** 63.90%
-  - **ROC-AUC:** 0.8622
-- **Risk Scoring:** Outputs calibrated churn probabilities and risk classifications (`HIGH RISK` vs. `LOW/MODERATE`) for customer retention prioritization.
+- **Performance:** Accuracy: 82.11%, Precision: 68.62%, Recall: 59.79%, F1-Score: 63.90%, ROC-AUC: 0.8622.
+- **Risk Scoring:** Generates individual churn probabilities to segment accounts into risk tiers.
+
+### Phase 6: Customer Lifetime Value (CLV) Estimation
+- **Concept:** Transparent expected future gross revenue (not actual net profit).
+- **Formula:**
+  $$\text{P(Retention)} = 1 - \text{P(Churn)}$$
+  $$\text{Expected Remaining Months} = T \times \text{P(Retention)}$$
+  $$\text{Estimated Future CLV} = \text{MonthlyCharges} \times \text{Expected Remaining Months}$$
+  $$\text{Revenue at Risk} = (\text{MonthlyCharges} \times T) \times \text{P(Churn)}$$
+  $$\text{Total Estimated CLV} = \text{TotalCharges} + \text{Estimated Future CLV}$$
+- **Key Separation:** Historical revenue (`TotalCharges`) is strictly isolated from estimated future revenue.
+- **Configurable Horizon:** Easily adaptable planning window (default: 12 months).
